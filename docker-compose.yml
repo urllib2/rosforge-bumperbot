@@ -1,0 +1,19 @@
+services:
+  ros2-bumperbot:
+    image: urllib2/rosforge-bumperbot:latest
+    ports:
+      - "6082:80"
+    environment:
+      - USER=ubuntu
+      - PASSWD=ubuntu
+    mem_limit: 6g
+    memswap_limit: 7g
+    volumes:
+      - ./ros_ws/src:/home/ubuntu/ros_ws/src
+      - ./ros_ws/install:/home/ubuntu/ros_ws/install
+      - ./ros_ws/build:/home/ubuntu/ros_ws/build
+      - ./ros_ws/log:/home/ubuntu/ros_ws/log
+      - ./continue_config:/home/ubuntu/.continue
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
