@@ -1,0 +1,47 @@
+{
+  "name": "RosForge — Bumperbot Workshop",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "ros2-bumperbot",
+  "workspaceFolder": "/home/ubuntu/ros_ws",
+  "remoteUser": "ubuntu",
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/ros_ws/src,target=/home/ubuntu/ros_ws/src,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/ros_ws/build,target=/home/ubuntu/ros_ws/build,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/ros_ws/install,target=/home/ubuntu/ros_ws/install,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/ros_ws/log,target=/home/ubuntu/ros_ws/log,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/continue_config,target=/home/ubuntu/.continue,type=bind,consistency=cached"
+  ],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Ranch-Hand-Robotics.rde-ros-2",
+        "Ranch-Hand-Robotics.rde-urdf",
+        "Ranch-Hand-Robotics.rde-pack",
+        "redhat.vscode-xml",
+        "PKief.material-icon-theme",
+        "GitHub.github-vscode-theme",
+        "twxs.cmake",
+        "ms-vscode.cmake-tools",
+        "ms-python.python",
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "Continue.continue"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "ros.distro": "jazzy",
+        "editor.formatOnSave": true,
+        "editor.tabSize": 2,
+        "workbench.iconTheme": "material-icon-theme",
+        "workbench.colorTheme": "GitHub Dark",
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "postAttachCommand": "bash -c 'source /opt/ros/jazzy/setup.bash && [ -f /home/ubuntu/ros_ws/install/setup.bash ] && source /home/ubuntu/ros_ws/install/setup.bash; echo \"✅ Bumperbot workspace ready\"'"
+}
