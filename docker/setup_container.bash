@@ -7,8 +7,15 @@
 # ==============================================================
 set -e
 echo "===== Bumperbot workspace build-time setup ====="
-
 source /opt/ros/jazzy/setup.bash
+
+# ==========================================
+# Ensure apt package lists are present.
+# Previous Dockerfile layers often clean /var/lib/apt/lists/*
+# which causes "Unable to locate package" for every ros-jazzy-*
+# (and even python3-serial / python3-smbus).
+# ==========================================
+apt-get update -q
 
 # ==========================================
 # CycloneDDS config
@@ -46,12 +53,11 @@ git clone https://github.com/AntoBrandi/Bumper-Bot.git
 rosdep init 2>/dev/null || true
 rosdep update
 cd /opt/bumperbot_ws
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths src --ignore-src -r -y --rosdistro jazzy
 
 # ==========================================
 # Build once at image build time — students get a working robot
 # immediately, no build wait at workshop start.
 # ==========================================
 colcon build --symlink-install
-
 echo "===== Build-time setup complete ====="
