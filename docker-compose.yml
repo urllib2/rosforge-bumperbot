@@ -6,8 +6,8 @@ services:
     environment:
       - USER=ubuntu
       - PASSWD=ubuntu
-    mem_limit: 6g
-    memswap_limit: 7g
+    mem_limit: 8g
+    memswap_limit: 10g
     volumes:
       - ./ros_ws/src:/home/ubuntu/ros_ws/src
       - ./ros_ws/install:/home/ubuntu/ros_ws/install
