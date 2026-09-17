@@ -1,9 +1,16 @@
 #!/bin/bash
 # ==============================================================
-# entrypoint.sh  —  RUNTIME ONLY
+# entrypoint.sh — RUNTIME ONLY
 # Runs every time the container starts. Idempotent: safe to
 # restart the container without side effects.
+#
+# The ROS workspace is stored in a persistent Docker volume at:
+#   /home/ubuntu/ros_ws
+#
+# The workspace is NOT seeded from /opt/bumperbot_ws.
+# Source code is cloned manually from GitHub.
 # ==============================================================
+
 set -e
 
 # ==========================================
@@ -28,16 +35,28 @@ if [ "$TARGET_USER" != "root" ]; then
     echo "$TARGET_USER:$PASSWORD" | chpasswd
 
     HOME_DIR="/home/$TARGET_USER"
+
     cp -r /root/.asoundrc "$HOME_DIR/" 2>/dev/null || true
+
     chown -R "$TARGET_USER:$TARGET_USER" "$HOME_DIR"
+
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
 fi
 
+# ==========================================
+# Persistent ROS workspace
+#
+# The workspace is provided by a Docker named
+# volume mounted at /home/ubuntu/ros_ws.
+#
+# Source code is cloned manually from GitHub.
+# No files are copied from /opt/bumperbot_ws.
+# ==========================================
 mkdir -p "$HOME_DIR/ros_ws"
-chown "$TARGET_USER:$TARGET_USER" "$HOME_DIR/ros_ws"
+chown -R "$TARGET_USER:$TARGET_USER" "$HOME_DIR/ros_ws"
 
 # ==========================================
-# Fix /tmp/.X11-unix  (must run as root)
+# Fix /tmp/.X11-unix (must run as root)
 # ==========================================
 mkdir -p /tmp/.X11-unix
 chmod 1777 /tmp/.X11-unix
@@ -52,10 +71,15 @@ dbus-daemon --system --fork || true
 # VNC password
 # ==========================================
 VNC_PASSWORD=${PASSWD:-ubuntu}
+
 mkdir -p "$HOME_DIR/.vnc"
+
 echo "$VNC_PASSWORD" | vncpasswd -f > "$HOME_DIR/.vnc/passwd"
+
 chmod 600 "$HOME_DIR/.vnc/passwd"
+
 chown -R "$TARGET_USER:$TARGET_USER" "$HOME_DIR/.vnc"
+
 sed -i "s/password = WebUtil.getConfigVar('password');/password = '$VNC_PASSWORD'/" \
     /usr/lib/novnc/app/ui.js
 
@@ -75,7 +99,9 @@ BASHRC="$HOME_DIR/.bashrc"
 _append_if_missing() {
     local marker="$1"
     local line="$2"
-    grep -qF "$marker" "$BASHRC" 2>/dev/null || echo "$line" >> "$BASHRC"
+
+    grep -qF "$marker" "$BASHRC" 2>/dev/null || \
+        echo "$line" >> "$BASHRC"
 }
 
 _append_if_missing "source /opt/ros/$ROS_DISTRO/setup.bash" \
@@ -100,6 +126,7 @@ chown "$TARGET_USER:$TARGET_USER" "$BASHRC"
 # ==========================================
 cat <<EOF > /usr/local/bin/start-xfce.sh
 #!/bin/bash
+
 for i in \$(seq 1 20); do
     DISPLAY=:1 xdpyinfo >/dev/null 2>&1 && break
     echo "Waiting for Xvnc... \$i"
@@ -112,14 +139,17 @@ export USER=$TARGET_USER
 
 eval \$(dbus-launch --sh-syntax)
 export DBUS_SESSION_BUS_ADDRESS
+
 exec startxfce4
 EOF
+
 chmod +x /usr/local/bin/start-xfce.sh
 
 # ==========================================
 # Supervisor config
 # ==========================================
 cat <<EOF > /etc/supervisor/conf.d/supervisord.conf
+
 [supervisord]
 nodaemon=true
 
@@ -146,12 +176,14 @@ priority=30
 startsecs=3
 stdout_logfile=/var/log/novnc.log
 stderr_logfile=/var/log/novnc.log
+
 EOF
 
 # ==========================================
 # Desktop shortcut — Terminator
 # ==========================================
 mkdir -p "$HOME_DIR/Desktop"
+
 cat <<EOF > "$HOME_DIR/Desktop/terminator.desktop"
 [Desktop Entry]
 Name=Terminator
@@ -160,9 +192,12 @@ Icon=utilities-terminal
 Type=Application
 Categories=Utility;TerminalEmulator;
 EOF
+
 chmod +x "$HOME_DIR/Desktop/terminator.desktop"
+
 gio set "$HOME_DIR/Desktop/terminator.desktop" \
     metadata::trusted true 2>/dev/null || true
+
 chown -R "$TARGET_USER:$TARGET_USER" "$HOME_DIR/Desktop"
 
 # ==========================================
