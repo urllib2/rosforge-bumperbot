@@ -33,23 +33,8 @@ if [ "$TARGET_USER" != "root" ]; then
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
 fi
 
-# ==========================================
-# Seed the workspace on first boot only.
-# The host bind-mounts ./ros_ws/{src,build,install,log} over
-# $HOME_DIR/ros_ws/* — on a brand new clone those host folders are
-# empty, so copy the pre-built Bumperbot workspace from /opt in.
-# On every later restart, src already has content (the student's
-# own work), so this is skipped — never overwrites student changes.
-# ==========================================
 mkdir -p "$HOME_DIR/ros_ws"
-if [ -z "$(ls -A "$HOME_DIR/ros_ws/src" 2>/dev/null)" ]; then
-    echo "* First boot: seeding ros_ws with pre-built Bumperbot workspace"
-    cp -r /opt/bumperbot_ws/src "$HOME_DIR/ros_ws/"
-    cp -r /opt/bumperbot_ws/build "$HOME_DIR/ros_ws/" 2>/dev/null || true
-    cp -r /opt/bumperbot_ws/install "$HOME_DIR/ros_ws/" 2>/dev/null || true
-    cp -r /opt/bumperbot_ws/log "$HOME_DIR/ros_ws/" 2>/dev/null || true
-    chown -R "$TARGET_USER:$TARGET_USER" "$HOME_DIR/ros_ws"
-fi
+chown "$TARGET_USER:$TARGET_USER" "$HOME_DIR/ros_ws"
 
 # ==========================================
 # Fix /tmp/.X11-unix  (must run as root)
