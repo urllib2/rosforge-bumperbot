@@ -6,14 +6,14 @@ services:
     environment:
       - USER=ubuntu
       - PASSWD=ubuntu
-    mem_limit: 6g
-    memswap_limit: 7g
+    mem_limit: 10g
+    memswap_limit: 8g
     volumes:
-      - ./ros_ws/src:/home/ubuntu/ros_ws/src
-      - ./ros_ws/install:/home/ubuntu/ros_ws/install
-      - ./ros_ws/build:/home/ubuntu/ros_ws/build
-      - ./ros_ws/log:/home/ubuntu/ros_ws/log
+      - rosforge_workspace:/home/ubuntu/ros_ws
       - ./continue_config:/home/ubuntu/.continue
     stdin_open: true
     tty: true
     restart: unless-stopped
+
+volumes:
+  rosforge_workspace:
