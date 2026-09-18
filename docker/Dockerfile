@@ -106,6 +106,8 @@ RUN apt-get update -q && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN echo 'source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash' >> /etc/bash.bashrc
+
 # Python serial support
 RUN pip install --no-cache-dir \
     --break-system-packages \
