@@ -102,6 +102,7 @@ RUN apt-get update -q && \
         ros-${ROS_DISTRO}-navigation2 \
         ros-${ROS_DISTRO}-nav2-bringup \
         ros-${ROS_DISTRO}-twist-mux \
+        ros-${ROS_DISTRO}-joy-teleop \
         python3-colcon-argcomplete \
         libserial-dev \
     && apt-get clean \
